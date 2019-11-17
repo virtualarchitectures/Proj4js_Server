@@ -80,6 +80,20 @@ app.get('/WGS84_TM75/:lon/:lat', (req, res) => {
 	res.send(output_coords);
 });
 
+app.get('/OSGB_WGS84/:eastings/:northings', (req,res) => {
+	console.log('Call Received to OSGB_WGS84 endpoint'),
+
+	t0 = now(),
+	OSGB_WGS84(Number(req.params.eastings),Number(req.params.northings)),
+	t1 = now(),
+
+	console.log('Input Coordinates: ', req.params.eastings, ',', req.params.northings),
+	console.log('Output Coordinates: ', output_coords),
+	console.log('Coordinate Tranformation took ' + (t1 - t0) + ' milliseconds.'),
+
+	res.send(output_coords);
+}); 
+
 //Create the server and listen on selected port
 app.listen(port, () => console.log(`Proj4js server listening on port ${port}...`));
 
@@ -111,6 +125,16 @@ function WGS84_TM75(x,y)
 	var firstProjection = WGS84;
 	//Transform TO second projection
 	var secondProjection = TM75; 
+	output_coords = proj4(firstProjection,secondProjection,[x,y]);
+	return output_coords;
+}
+
+function OSGB_WGS84(x,y)
+{
+	//Transform FROM first projection
+	var firstProjection = OSGB;
+	//Transform TO second projection
+	var secondProjection = WGS84; 
 	output_coords = proj4(firstProjection,secondProjection,[x,y]);
 	return output_coords;
 }
